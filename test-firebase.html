@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Firebase - Ferretería Litoral</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .user-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Prueba de Firebase - Ferretería Litoral</h1>
+        
+        <div id="authStatus" class="status info">
+            Iniciando Firebase...
+        </div>
+        
+        <div id="userInfo" class="user-info" style="display: none;">
+            <h3>Información del Usuario:</h3>
+            <p><strong>Nombre:</strong> <span id="userName"></span></p>
+            <p><strong>Email:</strong> <span id="userEmail"></span></p>
+            <p><strong>Foto:</strong> <img id="userPhoto" src="" alt="Foto de perfil" style="width: 50px; height: 50px; border-radius: 50%;"></p>
+        </div>
+        
+        <div id="authButtons">
+            <button id="loginBtn">🔐 Iniciar Sesión con Google</button>
+            <button id="logoutBtn" style="display: none;">🚪 Cerrar Sesión</button>
+        </div>
+        
+        <div id="dataTest" style="display: none;">
+            <h3>Prueba de Base de Datos</h3>
+            <button id="testSaveBtn">💾 Guardar Datos de Prueba</button>
+            <button id="testLoadBtn">📖 Cargar Datos</button>
+            <div id="dataResult" class="status info" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { 
+            signInWithGoogle, 
+            signOutUser, 
+            onAuthChanged,
+            saveProduct,
+            getProducts 
+        } from './firebase-config.js';
+
+        let currentUser = null;
+
+        // DOM elements
+        const authStatus = document.getElementById('authStatus');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
+        const userPhoto = document.getElementById('userPhoto');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const dataTest = document.getElementById('dataTest');
+        const testSaveBtn = document.getElementById('testSaveBtn');
+        const testLoadBtn = document.getElementById('testLoadBtn');
+        const dataResult = document.getElementById('dataResult');
+
+        // Auth state listener
+        onAuthChanged((user) => {
+            currentUser = user;
+            if (user) {
+                // User is signed in
+                authStatus.textContent = `✅ Conectado como: ${user.displayName || user.email}`;
+                authStatus.className = 'status success';
+                
+                // Show user info
+                userName.textContent = user.displayName || 'Sin nombre';
+                userEmail.textContent = user.email;
+                if (user.photoURL) {
+                    userPhoto.src = user.photoURL;
+                    userPhoto.style.display = 'inline';
+                } else {
+                    userPhoto.style.display = 'none';
+                }
+                userInfo.style.display = 'block';
+                
+                // Toggle buttons
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                
+                // Show data test section
+                dataTest.style.display = 'block';
+            } else {
+                // User is signed out
+                authStatus.textContent = '❌ No autenticado';
+                authStatus.className = 'status error';
+                
+                // Hide user info
+                userInfo.style.display = 'none';
+                
+                // Toggle buttons
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                
+                // Hide data test section
+                dataTest.style.display = 'none';
+            }
+        });
+
+        // Login function
+        loginBtn.addEventListener('click', async () => {
+            try {
+                authStatus.textContent = '🔄 Iniciando sesión...';
+                authStatus.className = 'status info';
+                
+                const user = await signInWithGoogle();
+                console.log('Login exitoso:', user);
+            } catch (error) {
+                console.error('Error en login:', error);
+                authStatus.textContent = `❌ Error al iniciar sesión: ${error.message}`;
+                authStatus.className = 'status error';
+            }
+        });
+
+        // Logout function
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOutUser();
+                console.log('Logout exitoso');
+            } catch (error) {
+                console.error('Error en logout:', error);
+                authStatus.textContent = `❌ Error al cerrar sesión: ${error.message}`;
+                authStatus.className = 'status error';
+            }
+        });
+
+        // Test save data
+        testSaveBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                dataResult.textContent = '❌ Debes iniciar sesión primero';
+                dataResult.className = 'status error';
+                dataResult.style.display = 'block';
+                return;
+            }
+
+            try {
+                dataResult.textContent = '🔄 Guardando datos de prueba...';
+                dataResult.className = 'status info';
+                dataResult.style.display = 'block';
+
+                const testProduct = {
+                    sku: 'TEST-001',
+                    name: 'Producto de Prueba',
+                    description: 'Este es un producto de prueba para Firebase',
+                    categoryId: 'test-category',
+                    price: 25.99,
+                    cost: 15.00,
+                    stock: 100,
+                    minStock: 10,
+                    supplier: 'Proveedor Test'
+                };
+
+                const savedProduct = await saveProduct(currentUser, testProduct);
+                dataResult.textContent = `✅ Producto guardado exitosamente con ID: ${savedProduct.id}`;
+                dataResult.className = 'status success';
+            } catch (error) {
+                console.error('Error guardando datos:', error);
+                dataResult.textContent = `❌ Error guardando datos: ${error.message}`;
+                dataResult.className = 'status error';
+            }
+        });
+
+        // Test load data
+        testLoadBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                dataResult.textContent = '❌ Debes iniciar sesión primero';
+                dataResult.className = 'status error';
+                dataResult.style.display = 'block';
+                return;
+            }
+
+            try {
+                dataResult.textContent = '🔄 Cargando datos...';
+                dataResult.className = 'status info';
+                dataResult.style.display = 'block';
+
+                const products = await getProducts(currentUser);
+                dataResult.textContent = `✅ Datos cargados exitosamente. Encontrados ${products.length} productos.`;
+                dataResult.className = 'status success';
+                
+                if (products.length > 0) {
+                    const productList = products.map(p => `• ${p.name} (${p.sku})`).join('\n');
+                    dataResult.textContent += `\n\nProductos:\n${productList}`;
+                }
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                dataResult.textContent = `❌ Error cargando datos: ${error.message}`;
+                dataResult.className = 'status error';
+            }
+        });
+
+        // Initial status
+        authStatus.textContent = '🔄 Inicializando Firebase...';
+    </script>
+</body>
+</html>

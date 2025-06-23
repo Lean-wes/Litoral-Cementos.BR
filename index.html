@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferretería Litoral - Sistema de Gestión</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Pantalla de inicio de sesión -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h1>Ferretería Litoral</h1>
+                <p>Sistema de Gestión Empresarial</p>
+            </div>
+            <div class="login-content">
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-box"></i>
+                        <span>Inventario</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Ventas</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Reportes</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-cogs"></i>
+                        <span>Gestión</span>
+                    </div>
+                </div>
+                <button id="loginBtn" class="login-btn">
+                    <i class="fab fa-google"></i>
+                    Iniciar Sesión con Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aplicación principal -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h2>Litoral</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" data-page="dashboard" class="nav-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" data-page="inventory" class="nav-item">
+                    <i class="fas fa-box"></i>
+                    <span>Inventario</span>
+                </a>
+                <a href="#" data-page="sales" class="nav-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Ventas</span>
+                </a>
+                <a href="#" data-page="expenses" class="nav-item">
+                    <i class="fas fa-receipt"></i>
+                    <span>Gastos</span>
+                </a>
+                <a href="#" data-page="reports" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reportes</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span>Administrador Litoral</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <div id="dashboardPage" class="page active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon sales">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Ventas del Mes</h3>
+                            <div class="metric-value" id="monthlySales">$0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon products">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Total Productos</h3>
+                            <div class="metric-value" id="totalProducts">0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon expenses">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Gastos del Mes</h3>
+                            <div class="metric-value" id="monthlyExpenses">$0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon profit">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Ganancia Neta</h3>
+                            <div class="metric-value" id="netProfit">$0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-charts">
+                    <div class="chart-card">
+                        <h3>Ventas por Mes</h3>
+                        <div class="chart-placeholder" id="salesChart">
+                            <canvas width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Productos con Poco Stock</h3>
+                        <div id="lowStockList" class="low-stock-list">
+                            <div class="no-data">No hay productos con poco stock</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventario -->
+            <div id="inventoryPage" class="page">
+                <div class="page-header">
+                    <h2>Gestión de Inventario</h2>
+                    <button id="addProductBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Agregar Producto
+                    </button>
+                </div>
+                
+                <div class="search-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="productSearch" placeholder="Buscar productos...">
+                    </div>
+                    <select id="categoryFilter">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+
+                <div class="products-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Marca</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <tr>
+                                <td colspan="7" class="no-data">No hay productos registrados</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Ventas -->
+            <div id="salesPage" class="page">
+                <div class="page-header">
+                    <h2>Gestión de Ventas</h2>
+                    <button id="addSaleBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Nueva Venta
+                    </button>
+                </div>
+
+                <div class="sales-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Factura</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody">
+                            <tr>
+                                <td colspan="5" class="no-data">No hay ventas registradas</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Gastos -->
+            <div id="expensesPage" class="page">
+                <div class="page-header">
+                    <h2>Gestión de Gastos</h2>
+                    <button id="addExpenseBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Agregar Gasto
+                    </button>
+                </div>
+
+                <div class="expenses-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Categoría</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTableBody">
+                            <tr>
+                                <td colspan="5" class="no-data">No hay gastos registrados</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reportes -->
+            <div id="reportsPage" class="page">
+                <div class="page-header">
+                    <h2>Reportes y Análisis</h2>
+                    <div class="report-filters">
+                        <select id="reportPeriod">
+                            <option value="month">Este mes</option>
+                            <option value="quarter">Último trimestre</option>
+                            <option value="year">Este año</option>
+                        </select>
+                        <button id="generateReportBtn" class="btn btn-secondary">
+                            <i class="fas fa-chart-bar"></i>
+                            Generar Reporte
+                        </button>
+                    </div>
+                </div>
+
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h3>Resumen Financiero</h3>
+                        <div class="report-content">
+                            <div class="report-item">
+                                <span>Ingresos Totales:</span>
+                                <span id="totalIncome">$0</span>
+                            </div>
+                            <div class="report-item">
+                                <span>Gastos Totales:</span>
+                                <span id="totalExpenses">$0</span>
+                            </div>
+                            <div class="report-item">
+                                <span>Ganancia Neta:</span>
+                                <span id="totalProfit">$0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <h3>Productos Más Vendidos</h3>
+                        <div id="topProducts" class="report-content">
+                            <div class="no-data">No hay datos disponibles</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modales -->
+    <!-- Modal Agregar Producto -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Agregar Producto</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="productSku">SKU *</label>
+                    <input type="text" id="productSku" required>
+                </div>
+                <div class="form-group">
+                    <label for="productName">Nombre *</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Descripción</label>
+                    <textarea id="productDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">Categoría *</label>
+                    <select id="productCategory" required>
+                        <option value="">Seleccionar categoría</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Precio *</label>
+                    <input type="number" id="productPrice" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="productStock">Stock Inicial *</label>
+                    <input type="number" id="productStock" required>
+                </div>
+                <div class="form-group">
+                    <label for="productMinStock">Stock Mínimo</label>
+                    <input type="number" id="productMinStock" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="productBrand">Marca</label>
+                    <input type="text" id="productBrand">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Venta -->
+    <div id="saleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nueva Venta</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="saleForm">
+                <div class="form-group">
+                    <label for="saleInvoice">Número de Factura *</label>
+                    <input type="text" id="saleInvoice" required>
+                </div>
+                <div class="form-group">
+                    <label for="saleCustomer">Cliente</label>
+                    <input type="text" id="saleCustomer">
+                </div>
+                <div class="form-group">
+                    <label>Productos</label>
+                    <div id="saleItems">
+                        <div class="sale-item">
+                            <select class="item-product" required>
+                                <option value="">Seleccionar producto</option>
+                            </select>
+                            <input type="number" class="item-quantity" placeholder="Cantidad" min="1" required>
+                            <span class="item-price">$0</span>
+                            <button type="button" class="btn-remove-item">×</button>
+                        </div>
+                    </div>
+                    <button type="button" id="addSaleItem" class="btn btn-secondary">
+                        <i class="fas fa-plus"></i>
+                        Agregar Producto
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label for="saleNotes">Notas</label>
+                    <textarea id="saleNotes"></textarea>
+                </div>
+                <div class="sale-total">
+                    <strong>Total: $<span id="saleTotal">0</span></strong>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Registrar Venta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Gasto -->
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="expenseModalTitle">Agregar Gasto</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="expenseForm">
+                <div class="form-group">
+                    <label for="expenseDescription">Descripción *</label>
+                    <input type="text" id="expenseDescription" required>
+                </div>
+                <div class="form-group">
+                    <label for="expenseCategory">Categoría *</label>
+                    <select id="expenseCategory" required>
+                        <option value="">Seleccionar categoría</option>
+                        <option value="Alquiler">Alquiler</option>
+                        <option value="Servicios">Servicios</option>
+                        <option value="Compras">Compras</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expenseAmount">Monto *</label>
+                    <input type="number" id="expenseAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="expenseReceipt">Recibo/Factura</label>
+                    <input type="text" id="expenseReceipt">
+                </div>
+                <div class="form-group">
+                    <label for="expenseNotes">Notas</label>
+                    <textarea id="expenseNotes"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Gasto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Cargando...</p>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="chart.js"></script>
+    <script src="data.js"></script>
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
